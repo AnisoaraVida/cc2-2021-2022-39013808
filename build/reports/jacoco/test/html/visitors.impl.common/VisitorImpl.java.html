@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VisitorImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">visitors.impl.common</a> &gt; <span class="el_source">VisitorImpl.java</span></div><h1>VisitorImpl.java</h1><pre class="source lang-java linenums">package visitors.impl.common;
+
+import cmdline.impl.common.SizeUnit;
+import visitors.api.Visitor;
+
+/**
+ * Defines common properties and behavior that most visitors may share
+ * (reuse and extension).
+ */
+public abstract class VisitorImpl implements Visitor {
+
+    public static final String WS = &quot; &quot;;
+    public static final String LEFT_PAR = &quot;(&quot;;
+    public static final String RIGHT_PAR = &quot;)&quot;;
+    public static final String TOTAL = &quot;TOTAL&quot;;
+    public static final String NB_FILES = &quot;Files&quot;;
+    public static final String TOTAL_SIZE = &quot;Size&quot;;
+    protected String unitStr;
+
+    protected SizeUnit sizeUnit;
+
+<span class="nc" id="L22">    public VisitorImpl() {</span>
+<span class="nc" id="L23">        this.sizeUnit = SizeUnit.BYTES;</span>
+<span class="nc" id="L24">    }</span>
+
+    public void setSizeUnit(SizeUnit sizeUnit) {
+<span class="nc" id="L27">        this.sizeUnit = sizeUnit;</span>
+<span class="nc" id="L28">        this.unitStr = LEFT_PAR + sizeUnit + RIGHT_PAR;</span>
+<span class="nc" id="L29">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

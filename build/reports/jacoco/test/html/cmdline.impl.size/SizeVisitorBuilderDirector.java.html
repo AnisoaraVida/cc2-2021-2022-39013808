@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SizeVisitorBuilderDirector.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">cmdline.impl.size</a> &gt; <span class="el_source">SizeVisitorBuilderDirector.java</span></div><h1>SizeVisitorBuilderDirector.java</h1><pre class="source lang-java linenums">package cmdline.impl.size;
+
+import cmdline.api.params.SizeParams;
+import visitors.api.VisitorBuilderDirector;
+import com.google.inject.Inject;
+import visitors.api.SizeVisitorBuilder;
+import visitors.api.Visitor;
+
+/**
+ * A director for the builder which creates the visitor for the size command line.
+ */
+<span class="nc" id="L12">final class SizeVisitorBuilderDirector implements VisitorBuilderDirector&lt;SizeParams&gt; {</span>
+    @Inject
+    @SizeVisitorBuilder.FileSize
+    private SizeVisitorBuilder builder;
+
+    @Override
+    public SizeVisitorBuilderDirector buildVisitor(SizeParams params) {
+<span class="nc" id="L19">        builder.setIncludeFilesOnly(params.isFilesOnly())</span>
+<span class="nc" id="L20">                .setIncludeDirectories(params.isIncludeDirectories())</span>
+<span class="nc" id="L21">                .setSizeUnit(params.getSizeUnit());</span>
+<span class="nc" id="L22">        return this;</span>
+    }
+
+    @Override
+    public Visitor getVisitor() {
+<span class="nc" id="L27">        return builder.build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

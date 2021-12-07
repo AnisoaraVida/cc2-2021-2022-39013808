@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PropertiesConfigLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">utils.properties</a> &gt; <span class="el_source">PropertiesConfigLoader.java</span></div><h1>PropertiesConfigLoader.java</h1><pre class="source lang-java linenums">package utils.properties;
+
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+
+/**
+ * Utility to loads properties from a configuration file.
+ */
+<span class="nc" id="L14">public final class PropertiesConfigLoader {</span>
+
+<span class="nc" id="L16">    private static final PropertiesConfigLoader INSTANCE = new PropertiesConfigLoader();</span>
+    public static final char LIST_DELIMITER = ',';
+    private String fileName;
+    private Configuration configuration;
+
+    public static PropertiesConfigLoader getInstance(){
+<span class="nc" id="L22">        return INSTANCE;</span>
+    }
+
+    public PropertiesConfigLoader setFileName(String fileName) {
+<span class="nc" id="L26">        this.fileName = fileName;</span>
+<span class="nc" id="L27">        return this;</span>
+    }
+
+    public Configuration getConfiguration() throws ConfigurationException {
+<span class="nc bnc" id="L31" title="All 2 branches missed.">       if (this.configuration == null)</span>
+<span class="nc" id="L32">           this.configuration = loadConfig();</span>
+<span class="nc" id="L33">        return this.configuration;</span>
+    }
+
+    public Configuration reloadConfiguration() throws ConfigurationException {
+<span class="nc" id="L37">        this.configuration = loadConfig();</span>
+<span class="nc" id="L38">        return this.configuration;</span>
+    }
+
+    public static PropertiesConfigLoader newInstance(){
+<span class="nc" id="L42">        return new PropertiesConfigLoader();</span>
+    }
+
+    private Configuration loadConfig() throws ConfigurationException {
+<span class="nc" id="L46">        Parameters params = new Parameters();</span>
+<span class="nc" id="L47">        FileBasedConfigurationBuilder&lt;FileBasedConfiguration&gt; builder =</span>
+                new FileBasedConfigurationBuilder&lt;FileBasedConfiguration&gt;(PropertiesConfiguration.class)
+<span class="nc" id="L49">                        .configure(params.fileBased()</span>
+<span class="nc" id="L50">                                .setFileName(this.fileName)</span>
+<span class="nc" id="L51">                                .setListDelimiterHandler(new DefaultListDelimiterHandler(LIST_DELIMITER)));</span>
+<span class="nc" id="L52">        return builder.getConfiguration();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

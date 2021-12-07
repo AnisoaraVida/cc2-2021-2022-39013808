@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileParamsImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">cmdline.impl.params</a> &gt; <span class="el_source">FileParamsImpl.java</span></div><h1>FileParamsImpl.java</h1><pre class="source lang-java linenums">package cmdline.impl.params;
+
+import cmdline.api.params.FileParams;
+import com.beust.jcommander.Parameter;
+
+<span class="nc" id="L6">final class FileParamsImpl implements FileParams {</span>
+<span class="nc" id="L7">    @Parameter(names = {&quot;-fs&quot;, &quot;--include-files&quot;}, description = &quot;include files sizes only in total, &quot; +</span>
+            &quot;showing each directory total as contained files or subdirectories' total.&quot; +
+            &quot; This implies that an empty directory's size is 0. This option is mutually exclusive with -ds.&quot;)
+    boolean filesOnly = false;
+
+<span class="nc" id="L12">    @Parameter(names = {&quot;-ds&quot;, &quot;--include-directories&quot;}, description = &quot;include directories sizes also in total, &quot; +</span>
+            &quot;showing each directory's own size. This option is mutually exclusive with -fs.&quot;)
+    boolean includeDirectories = false;
+
+    @Override
+    public boolean isFilesOnly() {
+<span class="nc" id="L18">        return filesOnly;</span>
+    }
+
+    @Override
+    public boolean isIncludeDirectories() {
+<span class="nc" id="L23">        return includeDirectories;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

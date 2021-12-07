@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FSMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">fsmount</a> &gt; <span class="el_source">FSMapper.java</span></div><h1>FSMapper.java</h1><pre class="source lang-java linenums">package fsmount;
+
+import filesystem.api.Component;
+import filesystem.api.ComponentType;
+import filesystem.impl.FSFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Maps a file tree to higher-level components in {@link filesystem.api}.
+ * Each {@link filesystem.api.Component} and {@link filesystem.api.Composite} encapsulate access to
+ * the underlying (real) file they map to.
+ * @see filesystem.api.Component
+ * @see filesystem.api.Composite
+ */
+public final class FSMapper {
+
+    private final Path mountPath;
+
+<span class="nc" id="L26">    public FSMapper(Path mountPath) {</span>
+<span class="nc" id="L27">        this.mountPath = mountPath;</span>
+<span class="nc" id="L28">    }</span>
+
+    /**
+     * Returns the complete file tree, starting at the path provided to the constructor,
+     * mapped to higher-level composite tree of {@link filesystem.api.Component}
+     * @return the composite tree of {@link filesystem.api.Component} that encapsulates
+     * access to the underlying file tree.
+     * @throws IOException if any I/O error occurs
+     */
+    public Component mountFS() throws IOException {
+<span class="nc" id="L38">        Map&lt;String, Component&gt; componentsPaths = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L39">        Files.walkFileTree(mountPath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,</span>
+<span class="nc" id="L40">                new SimpleFileVisitor&lt;&gt;() {</span>
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+<span class="nc" id="L43">                        Component dirComp = createComponentForFile(dir);</span>
+<span class="nc" id="L44">                        componentsPaths.put(dir.toString(), dirComp);</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">                        Component parent = dir.getParent() != null ? componentsPaths.get(dir.getParent().toString()) : null;</span>
+<span class="nc bnc" id="L46" title="All 4 branches missed.">                        if (parent != null &amp;&amp; parent.isDirectory())</span>
+<span class="nc" id="L47">                            parent.asComposite().addChild(dirComp);</span>
+<span class="nc" id="L48">                        return FileVisitResult.CONTINUE;</span>
+                    }
+
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+<span class="nc" id="L53">                        Component fileComp = createComponentForFile(file);</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">                        Component parent = file.getParent() != null ? componentsPaths.get(file.getParent().toString()) : null;</span>
+<span class="nc bnc" id="L55" title="All 4 branches missed.">                        if (parent != null &amp;&amp; parent.isDirectory())</span>
+<span class="nc" id="L56">                            parent.asComposite().addChild(fileComp);</span>
+<span class="nc" id="L57">                        return FileVisitResult.CONTINUE;</span>
+                    }
+                });
+<span class="nc" id="L60">        return componentsPaths.get(mountPath.toString());</span>
+    }
+
+    private Component createComponentForFile(Path path) {
+<span class="nc" id="L64">        File file = path.toFile();</span>
+        Component component;
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (file.isDirectory()) {</span>
+<span class="nc" id="L67">            component = FSFactory.getInstance().createComponent(ComponentType.DIRECTORY, file);</span>
+        } else {
+<span class="nc" id="L69">            component = FSFactory.getInstance().createComponent(ComponentType.FILE, file);</span>
+        }
+<span class="nc" id="L71">        return component;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

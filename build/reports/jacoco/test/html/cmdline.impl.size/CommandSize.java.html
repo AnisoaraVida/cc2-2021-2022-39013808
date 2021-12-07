@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommandSize.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">cmdline.impl.size</a> &gt; <span class="el_source">CommandSize.java</span></div><h1>CommandSize.java</h1><pre class="source lang-java linenums">package cmdline.impl.size;
+
+import cmdline.api.params.SizeParams;
+import cmdline.impl.common.CommandBase;
+import cmdline.impl.params.ParamsFactory;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameters;
+import com.beust.jcommander.ParametersDelegate;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import visitors.api.Visitor;
+import visitors.impl.size.SizeVisitorBuilderModule;
+
+/**
+ * Files and directories size command line implementation. The files or directories are provided as arguments.
+ * The size is about:
+ * - each file
+ * - each directory
+ * - the total of (only) all files sizes, which is the default behavior.
+ * &lt;p&gt;
+ * An alternative behavior is to display each directory size as the sum of contained files or subdirectories.
+ * As a consequence, the size of an empty directory is zero.
+ * &lt;p&gt;
+ * Another alternative behavior is to include the size of directories in the total, while displaying
+ * each directory size as in the default behavior.
+ */
+@Parameters(commandNames = {&quot;size&quot;}, commandDescription = &quot;Shows size of files or directories. &quot; +
+        &quot;Default behavior includes only files sizes in the total, while showing each directory's own size.&quot;)
+public final class CommandSize extends CommandBase {
+
+    private static final String NAME = &quot;size&quot;;
+
+<span class="nc" id="L33">    @ParametersDelegate</span>
+<span class="nc" id="L34">    private final SizeParams params = ParamsFactory.instance().createSizeParams();</span>
+
+    public CommandSize() {
+<span class="nc" id="L37">        super();</span>
+<span class="nc" id="L38">    }</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L42">        return NAME;</span>
+    }
+
+    @Override
+    public void execute(JCommander jc) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (isDisplayHelp(params.isHelp(), jc))</span>
+<span class="nc" id="L48">            return;</span>
+
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (bothOptionsFilesNDirectories()) {</span>
+<span class="nc" id="L51">            System.err.println(&quot;Parameters -fs and -ds are mutually exclusive. &quot; +</span>
+                    &quot;Use only one of them at each invocation.&quot;);
+<span class="nc" id="L53">            return;</span>
+        }
+
+<span class="nc" id="L56">        buildComponentTree(params.getPaths());</span>
+
+<span class="nc" id="L58">        Injector injector = Guice.createInjector(new SizeVisitorBuilderModule());</span>
+<span class="nc" id="L59">        SizeVisitorBuilderDirector director = injector.getInstance(SizeVisitorBuilderDirector.class);</span>
+<span class="nc" id="L60">        Visitor visitor = director.buildVisitor(params).getVisitor();</span>
+<span class="nc" id="L61">        components.forEach(c -&gt; c.accept(visitor));</span>
+<span class="nc" id="L62">        visitor.print();</span>
+
+<span class="nc" id="L64">    }</span>
+
+    private boolean bothOptionsFilesNDirectories() {
+<span class="nc bnc" id="L67" title="All 4 branches missed.">        return params.isFilesOnly() &amp;&amp; params.isIncludeDirectories();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

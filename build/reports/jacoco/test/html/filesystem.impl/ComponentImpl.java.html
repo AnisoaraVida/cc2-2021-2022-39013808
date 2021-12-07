@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComponentImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">filesystem.impl</a> &gt; <span class="el_source">ComponentImpl.java</span></div><h1>ComponentImpl.java</h1><pre class="source lang-java linenums">package filesystem.impl;
+
+import filesystem.api.Component;
+import org.apache.tika.mime.MediaType;
+import utils.fs.FileContentTypeDetector;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
+
+public abstract class ComponentImpl implements Component {
+
+    protected final File wrapped;
+
+<span class="nc" id="L17">    public ComponentImpl(File wrapped) {</span>
+<span class="nc" id="L18">        this.wrapped = wrapped;</span>
+<span class="nc" id="L19">    }</span>
+
+    @Override
+    public String getName() {
+<span class="nc" id="L23">        return this.wrapped.getName();</span>
+    }
+
+    @Override
+    public long getSize() throws IOException {
+<span class="nc" id="L28">        return Files.size(this.wrapped.toPath());</span>
+    }
+
+    @Override
+    public MediaType getContentType()  {
+<span class="nc" id="L33">        FileContentTypeDetector contentExtractor = FileContentTypeDetector.getInstance();</span>
+        try {
+<span class="nc" id="L35">            return contentExtractor.getContentType(this.wrapped);</span>
+<span class="nc" id="L36">        } catch (IOException e) {</span>
+<span class="nc" id="L37">            e.printStackTrace();</span>
+<span class="nc" id="L38">            return MediaType.EMPTY;</span>
+        }
+    }
+
+    @Override
+    public boolean isDirectory() {
+<span class="nc" id="L44">        return this.wrapped.isDirectory();</span>
+    }
+
+    @Override
+    public boolean isFile() {
+<span class="nc" id="L49">        return this.wrapped.isFile();</span>
+    }
+
+    @Override
+    public Path getPath() {
+<span class="nc" id="L54">        return this.wrapped.toPath();</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="nc" id="L61">        ComponentImpl component = (ComponentImpl) o;</span>
+        try {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            return this.getSize() == component.getSize() &amp;&amp;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">                    Objects.equals(this.getName(), component.getName());</span>
+<span class="nc" id="L65">        } catch (IOException e) {</span>
+<span class="nc" id="L66">            e.printStackTrace();</span>
+<span class="nc" id="L67">            return false;</span>
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        try {
+<span class="nc" id="L74">            return Objects.hash(this.getName(), this.getSize());</span>
+<span class="nc" id="L75">        } catch (IOException e) {</span>
+<span class="nc" id="L76">            e.printStackTrace();</span>
+<span class="nc" id="L77">            return 0;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

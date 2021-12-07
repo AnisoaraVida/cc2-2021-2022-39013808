@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PropertiesConfigExplorer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">utils.properties</a> &gt; <span class="el_source">PropertiesConfigExplorer.java</span></div><h1>PropertiesConfigExplorer.java</h1><pre class="source lang-java linenums">package utils.properties;
+
+import org.apache.commons.configuration2.Configuration;
+
+import java.util.*;
+
+/**
+ * Utility to explore loaded properties.
+ */
+public final class PropertiesConfigExplorer {
+
+<span class="nc" id="L12">    private static final PropertiesConfigExplorer INSTANCE = new PropertiesConfigExplorer();</span>
+    private Configuration config;
+    private final Map&lt;String, String&gt; reverseLangMTypeMap;
+
+<span class="nc" id="L16">    private PropertiesConfigExplorer(){</span>
+<span class="nc" id="L17">        reverseLangMTypeMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L18">    }</span>
+
+<span class="nc" id="L20">    public static PropertiesConfigExplorer getInstance(){return INSTANCE;}</span>
+
+    public PropertiesConfigExplorer setConfig(Configuration config){
+<span class="nc" id="L23">        this.config = config;</span>
+<span class="nc" id="L24">        initReverseLangMediaType();</span>
+<span class="nc" id="L25">        return this;</span>
+    }
+
+    public List&lt;String&gt; getKeys(){
+<span class="nc" id="L29">        List&lt;String&gt; mtKeys = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L30">        Iterator&lt;String&gt; keys = config.getKeys();</span>
+<span class="nc" id="L31">        keys.forEachRemaining(mtKeys::add);</span>
+<span class="nc" id="L32">        return mtKeys;</span>
+    }
+
+    public List&lt;String&gt; getValues() {
+<span class="nc" id="L36">        List&lt;String&gt; values = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L37">        Iterator&lt;String&gt; iter = config.getKeys();</span>
+<span class="nc" id="L38">        iter.forEachRemaining(k -&gt; {</span>
+<span class="nc" id="L39">            String[] types = config.getStringArray(k);</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">            if (types.length != 0) {</span>
+<span class="nc" id="L41">                values.addAll(Arrays.asList(types));</span>
+            } else {
+<span class="nc" id="L43">                String type = config.getString(k);</span>
+<span class="nc" id="L44">                values.add(type);</span>
+            }
+<span class="nc" id="L46">        });</span>
+<span class="nc" id="L47">        return values;</span>
+    }
+
+    public String getLang(String mediaType) {
+<span class="nc" id="L51">        return reverseLangMTypeMap.getOrDefault(mediaType, mediaType);</span>
+    }
+
+    private void initReverseLangMediaType() {
+<span class="nc" id="L55">        config.getKeys().forEachRemaining(l -&gt; {</span>
+<span class="nc" id="L56">            String[] mtypes = config.getStringArray(l);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (mtypes.length != 0) {</span>
+<span class="nc" id="L58">                Arrays.stream(mtypes).forEach(t -&gt; reverseLangMTypeMap.put(t, l));</span>
+            } else {
+<span class="nc" id="L60">                String mtype = config.getString(l);</span>
+<span class="nc" id="L61">                reverseLangMTypeMap.put(mtype, l);</span>
+            }
+<span class="nc" id="L63">        });</span>
+<span class="nc" id="L64">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

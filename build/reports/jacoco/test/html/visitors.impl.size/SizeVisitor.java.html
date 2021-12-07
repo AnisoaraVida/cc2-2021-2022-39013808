@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SizeVisitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">visitors.impl.size</a> &gt; <span class="el_source">SizeVisitor.java</span></div><h1>SizeVisitor.java</h1><pre class="source lang-java linenums">package visitors.impl.size;
+
+import filesystem.api.Component;
+import filesystem.api.Composite;
+import org.slf4j.Logger;
+import utils.display.CommandLineTable;
+import utils.logger.CmdLogger;
+import visitors.impl.common.VisitorImpl;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+
+import static utils.cmdhelper.SizeFormatter.formatSize;
+import static utils.cmdhelper.SizeFormatter.translateSizeInUnit;
+
+final class SizeVisitor extends VisitorImpl {
+
+    public static final String SIZE = &quot;Size&quot;;
+    public static final String NAME = &quot;Name&quot;;
+
+    private final CommandLineTable cmdLineTable;
+    private final Map&lt;Path, Long&gt; dirSize;
+    private final Logger logger;
+    private long totalSize;
+    private boolean includeFilesOnly;
+    private boolean includeDirectories;
+
+    SizeVisitor() {
+<span class="nc" id="L31">        super();</span>
+<span class="nc" id="L32">        cmdLineTable = new CommandLineTable();</span>
+<span class="nc" id="L33">        dirSize = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L34">        logger = CmdLogger.instance().getLogger(this.getClass());</span>
+<span class="nc" id="L35">    }</span>
+
+    @Override
+    public void visit(Component visitable) {
+        try {
+<span class="nc" id="L40">            long size = visitable.getSize();</span>
+<span class="nc" id="L41">            totalSize += size;</span>
+<span class="nc" id="L42">            checkIncludeFileSizeOnly(visitable);</span>
+<span class="nc" id="L43">            cmdLineTable.addRow(visitable.getPath().toString(),</span>
+<span class="nc" id="L44">                    formatSize(translateSizeInUnit(size, sizeUnit)));</span>
+<span class="nc" id="L45">            logger.info(&quot;Visited {}&quot;, visitable.getName());</span>
+<span class="nc" id="L46">        } catch (IOException e) {</span>
+<span class="nc" id="L47">            e.printStackTrace();</span>
+<span class="nc" id="L48">        }</span>
+<span class="nc" id="L49">    }</span>
+
+    @Override
+    public void visit(Composite&lt;Component&gt; visitable) {
+        try {
+<span class="nc" id="L54">            long size = visitable.getSize();</span>
+<span class="nc" id="L55">            checkIncludeDirSize(size);</span>
+<span class="nc" id="L56">            checkIncludeFileSizeOnly(visitable);</span>
+<span class="nc" id="L57">            visitable.getChildren().forEach(c -&gt; c.accept(this));</span>
+<span class="nc" id="L58">            updateParentSize(visitable);</span>
+<span class="nc" id="L59">            size = getDirSizeToPrint(visitable);</span>
+<span class="nc" id="L60">            cmdLineTable.addRow(visitable.getPath().toString(),</span>
+<span class="nc" id="L61">                    formatSize(translateSizeInUnit(size, sizeUnit)));</span>
+<span class="nc" id="L62">            logger.info(&quot;Visited {}&quot;, visitable.getName());</span>
+<span class="nc" id="L63">        } catch (IOException e) {</span>
+<span class="nc" id="L64">            e.printStackTrace();</span>
+<span class="nc" id="L65">        }</span>
+<span class="nc" id="L66">    }</span>
+
+    @Override
+    public void print() {
+<span class="nc" id="L70">        initCmdLineTableHeaders();</span>
+<span class="nc" id="L71">        cmdLineTable.setShowVerticalLines(true);</span>
+<span class="nc" id="L72">        cmdLineTable.addFinalRow(TOTAL + WS + unitStr,</span>
+<span class="nc" id="L73">                formatSize(translateSizeInUnit(totalSize, sizeUnit)));</span>
+<span class="nc" id="L74">        cmdLineTable.print();</span>
+<span class="nc" id="L75">    }</span>
+
+    void setIncludeFilesOnly(boolean includeFilesOnly) {
+<span class="nc" id="L78">        this.includeFilesOnly = includeFilesOnly;</span>
+<span class="nc" id="L79">    }</span>
+
+    void setIncludeDirectories(boolean includeDirectories) {
+<span class="nc" id="L82">        this.includeDirectories = includeDirectories;</span>
+<span class="nc" id="L83">    }</span>
+
+    private void initCmdLineTableHeaders() {
+<span class="nc" id="L86">        cmdLineTable.setHeaders(NAME, SIZE + WS + unitStr);</span>
+<span class="nc" id="L87">    }</span>
+
+    private void checkIncludeDirSize(long size) {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (includeDirectories)</span>
+<span class="nc" id="L91">            totalSize += size;</span>
+<span class="nc" id="L92">    }</span>
+
+    private void checkIncludeFileSizeOnly(Composite&lt;Component&gt; composite) {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (includeFilesOnly)</span>
+<span class="nc" id="L96">            dirSize.put(composite.getPath(), 0L);</span>
+<span class="nc" id="L97">    }</span>
+
+    private void checkIncludeFileSizeOnly(Component component) throws IOException {
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (includeFilesOnly) {</span>
+<span class="nc" id="L101">            long size = component.getSize();</span>
+<span class="nc" id="L102">            dirSize.computeIfPresent(component.getPath().getParent(), (k, v) -&gt; v + size);</span>
+        }
+<span class="nc" id="L104">    }</span>
+
+    private void updateParentSize(Composite&lt;Component&gt; composite) {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (includeFilesOnly) {</span>
+<span class="nc" id="L108">            long mySize = dirSize.get(composite.getPath());</span>
+<span class="nc" id="L109">            dirSize.computeIfPresent(composite.getPath().getParent(), (k, v) -&gt; v + mySize);</span>
+        }
+<span class="nc" id="L111">    }</span>
+
+    private long getDirSizeToPrint(Composite&lt;Component&gt; composite) throws IOException {
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (includeFilesOnly)</span>
+<span class="nc" id="L115">            return dirSize.get(composite.getPath());</span>
+<span class="nc" id="L116">        return composite.getSize();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

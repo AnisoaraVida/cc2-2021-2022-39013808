@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProgLangsVisitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">visitors.impl.proglangs</a> &gt; <span class="el_source">ProgLangsVisitor.java</span></div><h1>ProgLangsVisitor.java</h1><pre class="source lang-java linenums">package visitors.impl.proglangs;
+
+import filesystem.api.Component;
+import filesystem.api.Composite;
+import iterators.IteratorFactory;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.tika.mime.MediaType;
+import org.slf4j.Logger;
+import utils.display.CommandLineTable;
+import utils.logger.CmdLogger;
+import utils.properties.PropertiesConfigExplorer;
+import utils.properties.PropertiesConfigLoader;
+import visitors.impl.common.VisitorImpl;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static utils.cmdhelper.SizeFormatter.formatSize;
+import static utils.cmdhelper.SizeFormatter.translateSizeInUnit;
+
+final class ProgLangsVisitor extends VisitorImpl {
+
+    public static final String LANG = &quot;Language&quot;;
+    private static final String NB_LINES = &quot;Lines&quot;;
+
+    private final CommandLineTable cmdLineTable;
+    //Maps MediaType to &lt;nbFiles, nbLines, totalSize&gt;
+    private final Map&lt;MediaType, Triple&lt;Long, Long, Long&gt;&gt; mediaTypeFLS;
+    private final Logger logger;
+    private List&lt;MediaType&gt; mediaTypes;
+
+    ProgLangsVisitor() {
+<span class="nc" id="L40">        super();</span>
+<span class="nc" id="L41">        cmdLineTable = new CommandLineTable();</span>
+<span class="nc" id="L42">        mediaTypeFLS = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L43">        logger = CmdLogger.instance().getLogger(this.getClass());</span>
+<span class="nc" id="L44">    }</span>
+
+    @Override
+    public void visit(Component visitable) {
+<span class="nc" id="L48">        Iterator&lt;Component&gt; iterator = IteratorFactory.getInstance().getIterator(visitable, mediaTypes);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (iterator.hasNext())</span>
+<span class="nc" id="L50">            updateFLSMap(visitable);</span>
+<span class="nc" id="L51">    }</span>
+
+    @Override
+    public void visit(Composite&lt;Component&gt; visitable) {
+        Component component;
+<span class="nc" id="L56">        Iterator&lt;Component&gt; iterator = IteratorFactory.getInstance().getIterator(visitable, mediaTypes);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        while (iterator.hasNext()) {</span>
+<span class="nc" id="L58">            component = iterator.next();</span>
+<span class="nc" id="L59">            updateFLSMap(component);</span>
+        }
+<span class="nc" id="L61">    }</span>
+
+    @Override
+    public void print() {
+<span class="nc" id="L65">        initCmdLineTableHeaders();</span>
+<span class="nc" id="L66">        cmdLineTable.setShowVerticalLines(true);</span>
+        try {
+<span class="nc" id="L68">            PropertiesConfigExplorer explorer = PropertiesConfigExplorer.getInstance()</span>
+<span class="nc" id="L69">                    .setConfig(PropertiesConfigLoader.getInstance().getConfiguration());</span>
+
+<span class="nc" id="L71">            Triple&lt;Long, Long, Long&gt; data = mediaTypeFLS.entrySet().stream().map(e -&gt; {</span>
+<span class="nc" id="L72">                cmdLineTable.addRow(explorer.getLang(e.getKey().toString()),</span>
+<span class="nc" id="L73">                        String.valueOf(e.getValue().getLeft()),</span>
+<span class="nc" id="L74">                        String.valueOf(e.getValue().getMiddle()),</span>
+<span class="nc" id="L75">                        formatSize(translateSizeInUnit(e.getValue().getRight(), sizeUnit)));</span>
+<span class="nc" id="L76">                return e.getValue();</span>
+<span class="nc" id="L77">            }).reduce(Triple.of(0L, 0L, 0L), (t1, t2) -&gt;</span>
+<span class="nc" id="L78">                    Triple.of(t1.getLeft() + t2.getLeft(),</span>
+<span class="nc" id="L79">                            t1.getMiddle() + t2.getMiddle(),</span>
+<span class="nc" id="L80">                            t1.getRight() + t2.getRight())</span>
+            );
+<span class="nc" id="L82">            cmdLineTable.addFinalRow(TOTAL + WS + unitStr,</span>
+<span class="nc" id="L83">                    String.valueOf(data.getLeft()),</span>
+<span class="nc" id="L84">                    String.valueOf(data.getMiddle()),</span>
+<span class="nc" id="L85">                    formatSize(translateSizeInUnit(data.getRight(), sizeUnit)));</span>
+<span class="nc" id="L86">            cmdLineTable.print();</span>
+<span class="nc" id="L87">        } catch (ConfigurationException e) {</span>
+<span class="nc" id="L88">            e.printStackTrace();</span>
+<span class="nc" id="L89">        }</span>
+<span class="nc" id="L90">    }</span>
+
+    void setMediaTypes(List&lt;MediaType&gt; mediaTypes) {
+<span class="nc" id="L93">        this.mediaTypes = mediaTypes;</span>
+<span class="nc" id="L94">    }</span>
+
+    private void updateFLSMap(Component visitable) {
+        try {
+<span class="nc" id="L98">            long size = visitable.getSize();</span>
+<span class="nc" id="L99">            MediaType mtype = visitable.getContentType();</span>
+            long nbLines;
+<span class="nc" id="L101">            try (Stream&lt;String&gt; input = Files.lines(visitable.getPath(), StandardCharsets.UTF_8)) {</span>
+<span class="nc" id="L102">                nbLines = input.count();</span>
+            }
+<span class="nc" id="L104">            Triple&lt;Long, Long, Long&gt; newValue = mediaTypeFLS.computeIfAbsent(mtype, k -&gt;</span>
+<span class="nc" id="L105">                    Triple.of(1L, nbLines, size)</span>
+            );
+<span class="nc bnc" id="L107" title="All 4 branches missed.">            if (newValue.getRight() != size &amp;&amp; newValue.getMiddle() != nbLines)</span>
+<span class="nc" id="L108">                mediaTypeFLS.computeIfPresent(mtype, (k, v) -&gt;</span>
+<span class="nc" id="L109">                        Triple.of(v.getLeft() + 1L, v.getMiddle() + nbLines, v.getRight() + size));</span>
+<span class="nc" id="L110">            logger.info(&quot;Visited {}&quot;, visitable.getName());</span>
+<span class="nc" id="L111">        } catch (IOException e) {</span>
+<span class="nc" id="L112">            e.printStackTrace();</span>
+<span class="nc" id="L113">        }</span>
+<span class="nc" id="L114">    }</span>
+
+    private void initCmdLineTableHeaders() {
+<span class="nc" id="L117">        cmdLineTable.setHeaders(LANG, NB_FILES, NB_LINES, TOTAL_SIZE + WS + unitStr);</span>
+<span class="nc" id="L118">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

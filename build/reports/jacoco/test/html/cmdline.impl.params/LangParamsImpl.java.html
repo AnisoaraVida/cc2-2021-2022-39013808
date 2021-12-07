@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LangParamsImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">cmdline.impl.params</a> &gt; <span class="el_source">LangParamsImpl.java</span></div><h1>LangParamsImpl.java</h1><pre class="source lang-java linenums">package cmdline.impl.params;
+
+import cmdline.api.params.LangParams;
+import cmdline.impl.proglangs.ProgLangsValidator;
+import com.beust.jcommander.Parameter;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.tika.mime.MediaType;
+import utils.properties.PropertiesConfigExplorer;
+import utils.properties.PropertiesConfigLoader;
+import utils.cmdhelper.WSSplitter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="nc" id="L16">final class LangParamsImpl implements LangParams {</span>
+
+    @Parameter(names = {&quot;-l&quot;, &quot;--languages&quot;}, variableArity = true,
+            description = &quot;space-separated list of prog. languages to consider for filtering (see supported languages below).&quot;,
+            validateWith = ProgLangsValidator.class,
+            converter = ProgLangsValidator.class,
+            splitter = WSSplitter.class)
+    private List&lt;List&lt;MediaType&gt;&gt; mediaTypes;
+
+    @Override
+    public List&lt;MediaType&gt; getMediaTypes() {
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        if (mediaTypes != null)</span>
+<span class="nc" id="L28">            return mediaTypes.stream().reduce(new ArrayList&lt;&gt;(), (l1, l2) -&gt; {</span>
+<span class="nc" id="L29">                l1.addAll(l2);</span>
+<span class="nc" id="L30">                return l1;</span>
+            });
+        else
+<span class="nc" id="L33">            return loadSupportedMediaTypes();</span>
+    }
+
+    private List&lt;MediaType&gt; loadSupportedMediaTypes() {
+<span class="nc" id="L37">        List&lt;MediaType&gt; mTypes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L38">        PropertiesConfigLoader configLoader = PropertiesConfigLoader.getInstance();</span>
+        try {
+<span class="nc" id="L40">            Configuration config = configLoader.setFileName(ProgLangsValidator.CONTENTTYPES_PROPERTIES).getConfiguration();</span>
+<span class="nc" id="L41">            PropertiesConfigExplorer explorer = PropertiesConfigExplorer.getInstance().setConfig(config);</span>
+<span class="nc" id="L42">            mTypes.addAll(explorer.getValues().stream().map(MediaType::parse).toList());</span>
+<span class="nc" id="L43">        } catch (ConfigurationException e) {</span>
+<span class="nc" id="L44">            e.printStackTrace();</span>
+<span class="nc" id="L45">        }</span>
+<span class="nc" id="L46">        return mTypes;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

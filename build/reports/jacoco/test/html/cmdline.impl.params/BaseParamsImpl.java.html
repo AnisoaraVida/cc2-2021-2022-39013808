@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BaseParamsImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mapc-cc2-[VOTRE_NUMERO_ETUDIANT]</a> &gt; <a href="index.source.html" class="el_package">cmdline.impl.params</a> &gt; <span class="el_source">BaseParamsImpl.java</span></div><h1>BaseParamsImpl.java</h1><pre class="source lang-java linenums">package cmdline.impl.params;
+
+import cmdline.api.params.BaseParams;
+import com.beust.jcommander.Parameter;
+import utils.fs.PathConverter;
+import utils.cmdhelper.WSSplitter;
+
+import java.nio.file.Path;
+import java.util.List;
+
+/**
+ * Defines the most basic parameters for command lines.
+ * This definition may be reused in other command lines.
+ * Relies on JCommander to parse the command, its arguments, and options.
+ */
+<span class="nc" id="L16">final class BaseParamsImpl implements BaseParams {</span>
+
+    @Parameter(names = {&quot;-f&quot;, &quot;--files&quot;}, required = true, description = &quot;space-separated list of file or directory paths&quot;,
+            converter = PathConverter.class,
+            splitter = WSSplitter.class)
+    private List&lt;Path&gt; paths;
+
+    @Parameter(names = {&quot;-h&quot;, &quot;--help&quot;}, description = &quot;display this help&quot;, help = true)
+    private boolean help;
+
+    @Override
+    public List&lt;Path&gt; getPaths() {
+<span class="nc" id="L28">        return paths;</span>
+    }
+
+    @Override
+    public boolean isHelp() {
+<span class="nc" id="L33">        return help;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
